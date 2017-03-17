@@ -56,7 +56,7 @@ class UserForm(forms.Form):
         )
     )
 
-class DuesSandikForm(forms.Form):
+class DuesForm(forms.Form):
     tc = forms.CharField(
         help_text="TC NO girilecek"
     )
