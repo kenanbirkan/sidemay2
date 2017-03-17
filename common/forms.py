@@ -9,7 +9,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Submit, HTML, Button, Row, Field
 from crispy_forms.bootstrap import AppendedText, PrependedText, FormActions,InlineRadios
-
+from bootstrap3_datetime.widgets import DateTimePicker
 
 class UserForm(forms.Form):
     username = forms.CharField(
@@ -34,14 +34,6 @@ class UserForm(forms.Form):
 
     tel = forms.CharField()
 
-    grup = forms.ChoiceField(
-        choices=(
-            ("1", "Isci"),
-            ("2", "Memur")
-        ),
-        widget=forms.RadioSelect,
-        initial=1,
-    )
     start_date = forms.DateField(
         help_text="Baslangic tarihi"
     )
@@ -57,13 +49,38 @@ class UserForm(forms.Form):
         Field('dernek', css_class='input-xlarge'),
         Field('address', css_class='input-xlarge'),
         Field('tel', css_class='input-xlarge'),
-        InlineRadios('grup'),
         Field('start_date', css_class='input-xlarge'),
         FormActions(
             Submit('save_changes', 'Save changes', css_class="btn-primary"),
             Submit('cancel', 'Cancel'),
         )
     )
+
+class DuesSandikForm(forms.Form):
+    tc = forms.CharField(
+        help_text="TC NO girilecek"
+    )
+    value = forms.IntegerField(
+        help_text="miktar"
+    )
+    insert_date = forms.DateField(
+        help_text="Kayit tarihi",
+        widget=DateTimePicker(options={"format": "YYYY-MM-DD",
+                                       "pickTime": False})
+    )
+
+    helper = FormHelper()
+    helper.form_class = 'form-horizontal'
+    helper.layout = Layout(
+        Field('tc', css_class='input-xlarge',width="50px" ,height="50px"),
+        Field('value', css_class='input-xlarge'),
+        Field('insert_date', css_class='input-xlarge'),
+        FormActions(
+            Submit('save_changes', 'Save changes', css_class="btn-primary"),
+            Submit('cancel', 'Cancel'),
+        )
+    )
+
 
 
 

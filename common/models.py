@@ -12,7 +12,6 @@ class Profile(models.Model):
     dernek = models.IntegerField(default=0)  # dernek aidat
     address = models.CharField(max_length=200,default="")
     tel = models.CharField(max_length=15,default="")
-    grup = models.IntegerField(default=0)
     start_date = models.DateTimeField(default=datetime.datetime.utcnow())
 
     def __str__(self):
@@ -31,8 +30,6 @@ def save_user_profile(sender, instance, **kwargs):
 
 class Dues_Sandik(models.Model):
     record_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=200)
-    surname = models.CharField(max_length=200)
     tc =  models.CharField(max_length=12)
     value = models.IntegerField(default=0) # sandik aidat
     insert_date = models.DateTimeField()
@@ -40,8 +37,6 @@ class Dues_Sandik(models.Model):
 
 class Dues_Dernek(models.Model):
     record_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=200)
-    surname = models.CharField(max_length=200)
     tc =  models.CharField(max_length=12)
     value = models.IntegerField(default=0) # dernek aidat
     insert_date = models.DateTimeField()
@@ -49,8 +44,6 @@ class Dues_Dernek(models.Model):
 
 class Credit(models.Model):
     record_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=200)
-    surname = models.CharField(max_length=200)
     tc =  models.CharField(max_length=12)
     value = models.IntegerField(default=0) # sandik aidat
     insert_date = models.DateTimeField()
