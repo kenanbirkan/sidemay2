@@ -7,11 +7,11 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotFound
 import traceback
 
-@login_required(login_url="login/")
+@login_required(login_url="/login/")
 def login(request):
     return render(request,"home.html")
 
-@login_required(login_url="home/")
+@login_required(login_url="/home/")
 def home(request):
     return render(request,"home.html")
 
