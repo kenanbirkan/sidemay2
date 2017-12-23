@@ -1,19 +1,21 @@
 from django.http import HttpResponse
 from django.shortcuts import render
-from .models import Profile,Dues_Sandik,Dues_Dernek,Credit
-from .forms import UserForm,DuesForm
+from .models import Profile, Dues_Sandik, Dues_Dernek, Credit
+from .forms import UserForm, DuesForm
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotFound
 import traceback
+from django.contrib import messages
 
 @login_required(login_url="/login/")
 def login(request):
-    return render(request,"home.html")
+    return render(request, "home.html")
+
 
 @login_required(login_url="/home/")
 def home(request):
-    return render(request,"home.html")
+    return render(request, "home.html")
 
 
 @login_required
@@ -21,10 +23,10 @@ def add_profile(request):
     if request.user.is_superuser:
         if request.method == 'POST':
             new_user = User.objects.create_user(username=request.POST['username'],
-                                     email=request.POST['email'],
-                                     password=request.POST['username'])
+                                                email=request.POST['email'],
+                                                password=request.POST['username'])
             profile = new_user.profile
-            profile.sandik=request.POST['sandik']
+            profile.sandik = request.POST['sandik']
             profile.dernek = request.POST['dernek']
             profile.address = request.POST['address']
             profile.tel = request.POST['tel']
@@ -38,9 +40,10 @@ def add_profile(request):
             user_form = UserForm()
             return render(request, 'user_form.html', {
                 'user_form': user_form
-        })
+            })
     else:
-        return  HttpResponseNotFound('<h1>No Page Here</h1>')
+        return HttpResponseNotFound('<h1>No Page Here</h1>')
+
 
 @login_required
 def add_dues_sandik(request):
@@ -48,22 +51,20 @@ def add_dues_sandik(request):
         if request.method == 'POST':
             try:
 
-                tc=request.POST['tc']
+                tc = request.POST['tc']
                 value = request.POST['value']
                 insert_date = request.POST['insert_date']
-                p_obj = Profile.objects.filter(user__username=tc) # check user exist else return exception
+                p_obj = Profile.objects.filter(user__username=tc)  # check user exist else return exception
 
                 if p_obj:
                     new_due = Dues_Sandik()
-                    new_due.tc=tc
-                    new_due.value=value
-                    new_due.insert_date=insert_date
+                    new_due.tc = tc
+                    new_due.value = value
+                    new_due.insert_date = insert_date
                     new_due.save()
 
                 ds_form = DuesForm()
-                return render(request, 'dues_sandik_form.html', {
-                    'ds_form': ds_form
-                })
+                return render(request, 'dues_sandik_form.html', {'ds_form': ds_form })
             except:
                 print traceback.format_exc()
 
@@ -72,9 +73,10 @@ def add_dues_sandik(request):
             return_dict = {
                 "error_val": "2"
             }
-            return render(request, 'dues_sandik_form.html', {'ds_form': ds_form},{'ret_dict':return_dict})
+            return render(request, 'dues_sandik_form.html', {'ds_form': ds_form})
     else:
-        return  HttpResponseNotFound('<h1>No Page Here</h1>')
+        return HttpResponseNotFound('<h1>No Page Here</h1>')
+
 
 @login_required
 def add_dues_dernek(request):
@@ -82,20 +84,20 @@ def add_dues_dernek(request):
         if request.method == 'POST':
             try:
 
-                tc=request.POST['tc']
+                tc = request.POST['tc']
                 value = request.POST['value']
                 insert_date = request.POST['insert_date']
-                p_obj = Profile.objects.filter(user__username=tc) # check user exist else return exception
+                p_obj = Profile.objects.filter(user__username=tc)  # check user exist else return exception
 
                 if p_obj:
                     new_due = Dues_Dernek()
-                    new_due.tc=tc
-                    new_due.value=value
-                    new_due.insert_date=insert_date
+                    new_due.tc = tc
+                    new_due.value = value
+                    new_due.insert_date = insert_date
                     new_due.save()
 
                 ds_form = DuesForm()
-                return render(request, 'dues_sandik_form.html', {
+                return render(request, 'dues_dernek_form.html', {
                     'ds_form': ds_form
                 })
             except:
@@ -106,9 +108,10 @@ def add_dues_dernek(request):
             return_dict = {
                 "error_val": "2"
             }
-            return render(request, 'dues_sandik_form.html', {'ds_form': ds_form}, {'ret_dict':return_dict})
+            return render(request, 'dues_dernek_form.html', {'ds_form': ds_form}, {'ret_dict': return_dict})
     else:
-        return  HttpResponseNotFound('<h1>No Page Here</h1>')
+        return HttpResponseNotFound('<h1>No Page Here</h1>')
+
 
 @login_required
 def add_credit(request):
@@ -116,20 +119,24 @@ def add_credit(request):
         if request.method == 'POST':
             try:
 
-                tc=request.POST['tc']
+                tc = request.POST['tc']
                 value = request.POST['value']
                 insert_date = request.POST['insert_date']
-                p_obj = Profile.objects.filter(user__username=tc) # check user exist else return exception
+                p_obj = Profile.objects.filter(user__username=tc)  # check user exist else return exception
 
                 if p_obj:
                     new_due = Credit()
-                    new_due.tc=tc
-                    new_due.value=value
-                    new_due.insert_date=insert_date
+                    new_due.tc = tc
+                    new_due.value = value
+                    new_due.insert_date = insert_date
                     new_due.save()
+                    messages.success(request, 'Kredi %s tc li kullaniciya eklendi.' % tc)
+                else:
+                    messages.error(request, '%s tc li kullanici bulunamadi lutfen kontrol ediniz' % tc)
+
 
                 ds_form = DuesForm()
-                return render(request, 'dues_sandik_form.html', {
+                return render(request, 'dues_credit_form.html', {
                     'ds_form': ds_form
                 })
             except:
@@ -140,6 +147,6 @@ def add_credit(request):
             return_dict = {
                 "error_val": "2"
             }
-            return render(request, 'dues_sandik_form.html', {'ds_form': ds_form}, {'ret_dict':return_dict})
+            return render(request, 'dues_credit_form.html', {'ds_form': ds_form}, {'ret_dict': return_dict})
     else:
-        return  HttpResponseNotFound('<h1>No Page Here</h1>')
+        return HttpResponseNotFound('<h1>No Page Here</h1>')

@@ -9,7 +9,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Submit, HTML, Button, Row, Field
 from crispy_forms.bootstrap import AppendedText, PrependedText, FormActions,InlineRadios
-from bootstrap3_datetime.widgets import DateTimePicker
+# from bootstrap3_datetime.widgets import DateTimePicker
 
 class UserForm(forms.Form):
     username = forms.CharField(
@@ -35,7 +35,10 @@ class UserForm(forms.Form):
     tel = forms.CharField()
 
     start_date = forms.DateField(
-        help_text="Baslangic tarihi"
+        help_text="Baslangic tarihi",
+        widget=forms.TextInput(
+            attrs={'type': 'date'}
+        )
     )
 
     helper = FormHelper()
@@ -51,8 +54,8 @@ class UserForm(forms.Form):
         Field('tel', css_class='input-xlarge'),
         Field('start_date', css_class='input-xlarge'),
         FormActions(
-            Submit('save_changes', 'Save changes', css_class="btn-primary"),
-            Submit('cancel', 'Cancel'),
+            Submit('save_changes', 'Kaydet', css_class="btn-primary"),
+            Submit('Vazgec', 'Vazgec'),
         )
     )
 
@@ -65,8 +68,9 @@ class DuesForm(forms.Form):
     )
     insert_date = forms.DateField(
         help_text="Kayit tarihi",
-        widget=DateTimePicker(options={"format": "YYYY-MM-DD",
-                                       "pickTime": False})
+        widget=forms.TextInput(
+            attrs={'type': 'date'}
+        )
     )
 
     helper = FormHelper()
@@ -76,8 +80,8 @@ class DuesForm(forms.Form):
         Field('value', css_class='input-xlarge'),
         Field('insert_date', css_class='input-xlarge'),
         FormActions(
-            Submit('save_changes', 'Save changes', css_class="btn-primary"),
-            Submit('cancel', 'Cancel'),
+            Submit('save_changes', 'Kaydet', css_class="btn-primary"),
+            Submit('Vazgec', 'Vazgec'),
         )
     )
 
