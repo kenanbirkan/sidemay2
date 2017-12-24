@@ -31,7 +31,6 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    'bootstrap3_datetime',
     'crispy_forms',
     'django_tables2',
     'common.apps.CommonConfig',

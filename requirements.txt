@@ -1,3 +1,7 @@
-django
-django-tables2
+django==1.11.7
+django_tables2
+django-bootstrap3==8.2.3
+django-debug-toolbar<1.6
+django-filter==1.0.2
+tablib<0.11.99
 django-crispy-forms
