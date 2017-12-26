@@ -5,6 +5,7 @@ from .models import Profile, Dues_Sandik, Dues_Dernek, Credit , User
 class ProfileTable(tables.Table):
     class Meta:
         model = Profile
+        attrs = {'class': 'table table-bordered table-striped table-hover'}
 
 class ProfileFilter(FilterSet):
     class Meta:
@@ -25,3 +26,9 @@ class SandikFilter(FilterSet):
             'tc': ['exact', 'contains'],
             # 'tz': ['exact'],
         }
+
+class NameTable(tables.Table):
+    class Meta:
+        model = Dues_Sandik
+        attrs = {'class': 'table table-bordered table-striped table-hover'}
+        exclude = ('record_id',)

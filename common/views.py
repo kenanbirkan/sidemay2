@@ -4,15 +4,16 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotFound
 from django.shortcuts import render
 
-from .forms import UserForm, DuesForm
-from .models import Profile, Dues_Sandik, Dues_Dernek, Credit , User
+from .forms import UserForm, DuesForm ,TCrequestForm
+from .models import Profile, Dues_Sandik, Dues_Dernek, Credit, User
 import traceback
 from django.contrib import messages
 
 from django_filters.views import FilterView
 from django_tables2 import MultiTableMixin, RequestConfig, SingleTableMixin, SingleTableView
-from .table_objects import ProfileFilter,ProfileTable,SandikFilter,SandikTable
-
+from .table_objects import ProfileFilter, ProfileTable, SandikFilter, SandikTable, NameTable
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic.base import TemplateView
 
 @login_required(login_url="/login/")
 def login(request):
@@ -60,8 +61,6 @@ def add_profile(request):
         })
 
 
-
-
 @login_required
 def add_dues_sandik(request):
     if request.user.is_superuser:
@@ -83,9 +82,8 @@ def add_dues_sandik(request):
                 else:
                     messages.error(request, '%s tc li kullanici bulunamadi lutfen kontrol ediniz' % tc)
 
-
                 ds_form = DuesForm()
-                return render(request, 'dues_sandik_form.html', {'ds_form': ds_form })
+                return render(request, 'dues_sandik_form.html', {'ds_form': ds_form})
             except:
                 print(traceback.format_exc())
 
@@ -158,13 +156,12 @@ def add_credit(request):
                 else:
                     messages.error(request, '%s tc li kullanici bulunamadi lutfen kontrol ediniz' % tc)
 
-
                 ds_form = DuesForm()
                 return render(request, 'dues_credit_form.html', {
                     'ds_form': ds_form
                 })
             except:
-                print (traceback.format_exc())
+                print(traceback.format_exc())
 
         else:
             ds_form = DuesForm()
@@ -176,17 +173,87 @@ def add_credit(request):
         return HttpResponseNotFound('<h1>No Page Here</h1>')
 
 
+class FilteredProfileListView(LoginRequiredMixin, SingleTableMixin, FilterView):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
 
-class FilteredProfileListView(SingleTableMixin, FilterView):
     table_class = ProfileTable
     model = Profile
     template_name = 'bootstrap_template.html'
     filterset_class = ProfileFilter
 
 
-class FilteredSandikListView(SingleTableMixin, FilterView):
+class FilteredSandikListView(LoginRequiredMixin, SingleTableMixin, FilterView):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
+
     table_class = SandikTable
     model = Dues_Sandik
     template_name = 'bootstrap_template.html'
     filterset_class = SandikFilter
 
+
+
+
+
+
+class MultipleTables(MultiTableMixin, TemplateView):
+
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
+    template_name = 'multiTable.html'
+    table_pagination = {
+        'per_page': 2
+    }
+
+    def get_table_pagination(self, table):
+        return {'per_page': 2}
+
+    def get(self, request, *args, **kwargs):
+        qs = Dues_Sandik.objects.all()
+        table = NameTable(qs)
+        # table.paginate(page=request.GET.get('page', 1), per_page=2)
+        table2 = NameTable(qs)
+        # table2.paginate(page=request.GET.get('page', 1), per_page=2)
+        tables = [
+            table,
+            table2
+        ]
+        return render(request, self.template_name, {'tables': tables})
+
+
+
+def tc_sorgu_view(request):
+    '''Demonstrate the use of the bootstrap template'''
+
+    if request.user.is_superuser:
+        if request.method == 'POST':
+            tc = request.POST['tc']
+            if tc == '000':
+                result = Dues_Sandik.objects.all()
+            else:
+                result = Dues_Sandik.objects.filter(tc=tc)
+            data = []
+            total_value = 0
+            for item in result:
+                item_dict = {
+                    "tc": item.tc,
+                    "value": item.value,
+                    "insert_date": item.insert_date
+                }
+                total_value += item.value
+                data.append(item_dict)
+            data.append({"tc": "Total", "value": total_value, "date": ""})
+            table = NameTable(data)
+
+            RequestConfig(request, paginate={'per_page': 50}).configure(table)
+
+            return render(request, 'bootstrap_template.html', {
+                'table': table
+            })
+        else:
+            tc_form = TCrequestForm()
+            return_dict = {
+                "error_val": "2"
+            }
+            return render(request, 'tc_request_form.html', {'ds_form': tc_form}, {'ret_dict': return_dict})

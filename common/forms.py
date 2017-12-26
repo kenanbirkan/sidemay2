@@ -85,6 +85,17 @@ class DuesForm(forms.Form):
     )
 
 
+class TCrequestForm(forms.Form):
+    tc = forms.CharField(label="TC NO giriniz", required=True)
+    helper = FormHelper()
+    helper.form_method = 'POST'
+    helper.form_class = 'form-horizontal'
+    helper.label_class = 'col-sm-2'
+    helper.field_class = 'col-sm-4'
+    helper.layout = Layout(
+        Field('tc', css_class='input-sm'),
+        FormActions(Submit('SORGULA', 'SORGULA', css_class='btn-primary'))
+    )
 
 
 

@@ -15,11 +15,11 @@
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="{% static 'bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
 
-    <link href="{% static 'django_tables2/bootstrap.css' %}" rel="stylesheet" />
+    <link href="{% static 'django_tables2/bootstrap.css' %}" rel="stylesheet"/>
 
     <!-- Core Scripts - Include with every page -->
-<script src="{% static 'js/jquery.min.js' %}"></script>
-<script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
 
 
 </head>
@@ -65,13 +65,13 @@
     </div>
 </nav>
 
+  {% block body %}
+        {% load django_tables2 %}
+        {% render_table table %}
+        {% endblock %}
+
 {% block content %}
 {% endblock %}
-
-
-
-
-
 
 
 {% block scripts %}
