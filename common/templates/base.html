@@ -65,10 +65,9 @@
     </div>
 </nav>
 
-  {% block body %}
-        {% load django_tables2 %}
-        {% render_table table %}
-        {% endblock %}
+{% block body %}
+{% load django_tables2 %}
+{% endblock %}
 
 {% block content %}
 {% endblock %}

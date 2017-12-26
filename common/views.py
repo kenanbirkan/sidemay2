@@ -193,8 +193,20 @@ class FilteredSandikListView(LoginRequiredMixin, SingleTableMixin, FilterView):
     filterset_class = SandikFilter
 
 
-
-
+def get_table_from_data(result,label):
+    data = []
+    total_value = 0
+    for item in result:
+        item_dict = {
+            "tc": item.tc,
+            "value": item.value,
+            "insert_date": item.insert_date
+        }
+        total_value += item.value
+        data.append(item_dict)
+    data.append({"tc": "Total " + label, "value": total_value, "date": ""})
+    table = NameTable(data)
+    return table
 
 
 class MultipleTables(MultiTableMixin, TemplateView):
@@ -203,23 +215,42 @@ class MultipleTables(MultiTableMixin, TemplateView):
     redirect_field_name = 'redirect_to'
     template_name = 'multiTable.html'
     table_pagination = {
-        'per_page': 2
+        'per_page': 20
     }
+    form_class = TCrequestForm
+    initial = {'key': 'value'}
 
     def get_table_pagination(self, table):
-        return {'per_page': 2}
+        return {'per_page': 20}
 
     def get(self, request, *args, **kwargs):
-        qs = Dues_Sandik.objects.all()
-        table = NameTable(qs)
-        # table.paginate(page=request.GET.get('page', 1), per_page=2)
-        table2 = NameTable(qs)
-        # table2.paginate(page=request.GET.get('page', 1), per_page=2)
+        form = self.form_class(initial=self.initial)
+        return render(request, self.template_name, {'ds_form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        tc = request.POST['tc']
+        if tc == '000':
+             result_sandik = Dues_Sandik.objects.all()
+             result_dernek = Dues_Dernek.objects.all()
+             result_credit = Credit.objects.all()
+        else:
+            result_sandik = Dues_Sandik.objects.filter(tc=tc)
+            result_dernek = Dues_Dernek.objects.filter(tc=tc)
+            result_credit = Credit.objects.filter(tc=tc)
+
+        table_sandik = get_table_from_data(result_sandik,"Sandik aidat")
+        table_dernek = get_table_from_data(result_dernek,"Dernek aidat")
+        table_credit = get_table_from_data(result_credit,"Kredi")
+
         tables = [
-            table,
-            table2
+            table_sandik,
+            table_dernek,
+            table_credit
         ]
-        return render(request, self.template_name, {'tables': tables})
+        return render(request, self.template_name, {'tables': tables,
+                                                    'ds_form': form})
+
 
 
 
