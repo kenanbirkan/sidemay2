@@ -8,8 +8,10 @@ import datetime
 from django.utils import timezone
 
 class Profile(models.Model):
+    class Meta:
+        verbose_name = 'Uyeler'
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    tc = models.CharField(max_length=11,default="00000000000")
+    tc = models.CharField(max_length=11,default="00000000000",db_index=True)
     sandik = models.IntegerField(default=0)  # sandik aidat
     dernek = models.IntegerField(default=0)  # dernek aidat
     address = models.CharField(max_length=200, default="")
@@ -32,8 +34,10 @@ def save_user_profile(sender, instance, **kwargs):
 
 
 class Dues_Sandik(models.Model):
+    class Meta:
+        verbose_name = 'Sandik aidat'
     record_id = models.AutoField(primary_key=True)
-    tc = models.CharField(max_length=12)
+    tc = models.CharField(max_length=12,db_index=True)
     value = models.IntegerField(default=0)  # sandik aidat
     insert_date = models.DateTimeField()
 
@@ -45,8 +49,10 @@ class Dues_Sandik(models.Model):
 
 
 class Dues_Dernek(models.Model):
+    class Meta:
+        verbose_name = 'Dernek aidat'
     record_id = models.AutoField(primary_key=True)
-    tc = models.CharField(max_length=12)
+    tc = models.CharField(max_length=12,db_index=True)
     value = models.IntegerField(default=0)  # dernek aidat
     insert_date = models.DateTimeField()
 
@@ -55,8 +61,10 @@ class Dues_Dernek(models.Model):
 
 
 class Credit_Pays(models.Model):
+    class Meta:
+        verbose_name = 'Kredi ödenen'
     record_id = models.AutoField(primary_key=True)
-    tc = models.CharField(max_length=12)
+    tc = models.CharField(max_length=12,db_index=True)
     value = models.IntegerField(default=0)  # sandik aidat
     insert_date = models.DateTimeField()
 
@@ -65,8 +73,10 @@ class Credit_Pays(models.Model):
 
 
 class Credit(models.Model):
+    class Meta:
+        verbose_name = 'Kredi verilen'
     record_id = models.AutoField(primary_key=True)
-    tc = models.CharField(max_length=12)
+    tc = models.CharField(max_length=12,db_index=True)
     value = models.IntegerField(default=0)  # sandik aidat
     insert_date = models.DateTimeField()
 
@@ -75,6 +85,8 @@ class Credit(models.Model):
 
 
 class Outcome(models.Model):
+    class Meta:
+        verbose_name = 'Gider'
     record_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=200)
     info = models.CharField(max_length=200)
