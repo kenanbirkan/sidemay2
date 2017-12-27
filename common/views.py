@@ -83,7 +83,7 @@ def add_dues_sandik(request):
                     messages.error(request, '%s tc li kullanici bulunamadi lutfen kontrol ediniz' % tc)
 
                 ds_form = DuesForm()
-                return render(request, 'dues_sandik_form.html', {'ds_form': ds_form})
+                return render(request, 'dues_form.html', {'ds_form': ds_form, 'title_message': "Sandik Aidat Odeme Ekranı"})
             except:
                 print(traceback.format_exc())
 
@@ -116,9 +116,7 @@ def add_dues_dernek(request):
                     messages.error(request, '%s tc li kullanici bulunamadi lutfen kontrol ediniz' % tc)
 
                 ds_form = DuesForm()
-                return render(request, 'dues_dernek_form.html', {
-                    'ds_form': ds_form
-                })
+                return render(request, 'dues_form.html', {'ds_form': ds_form, 'title_message': "Dernek Aidat Odeme Ekranı"})
             except:
                 print(traceback.format_exc())
 
@@ -151,9 +149,7 @@ def add_credit(request):
                     messages.error(request, '%s tc li kullanici bulunamadi lutfen kontrol ediniz' % tc)
 
                 ds_form = DuesForm()
-                return render(request, 'dues_credit_form.html', {
-                    'ds_form': ds_form
-                })
+                return render(request, 'dues_form.html', {'ds_form': ds_form, 'title_message': "Kredi Verme Ekranı"})
             except:
                 print(traceback.format_exc())
 
@@ -186,9 +182,7 @@ def add_credit_pays(request):
                     messages.error(request, '%s tc li kullanici bulunamadi lutfen kontrol ediniz' % tc)
 
                 ds_form = DuesForm()
-                return render(request, 'dues_credit_form.html', {
-                    'ds_form': ds_form
-                })
+                return render(request, 'dues_form.html', {'ds_form': ds_form, 'title_message': "Kredi Odeme Ekranı"})
             except:
                 print(traceback.format_exc())
 
