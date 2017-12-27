@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-      <h1>DERNEK AİDATI EKLEME EKRANI</h1>
+   <h1>{{title_message}}</h1>
 {% if messages %}
 <ul class="messages">
     {% for message in messages %}
@@ -13,6 +13,5 @@
     {% endfor %}
 </ul>
 {% endif %}
-
    {% crispy ds_form %}
 {% endblock %}
