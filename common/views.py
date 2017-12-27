@@ -230,8 +230,8 @@ def get_table_from_data(result,label):
         }
         total_value += item.value
         data.append(item_dict)
-    data.append({"tc": "Total " + label, "value": total_value, "date": ""})
-    table = NameTable(data)
+    data.append({"tc": "Total " + label, "value": total_value, "insert_date": ""})
+    table = NameTable(data,order_by='insert_date')
     return table
 
 
@@ -269,6 +269,7 @@ class NormalUserMultipleTables(MultiTableMixin, TemplateView):
             table_credit,
             table_credit_pays
         ]
+        RequestConfig(request).configure(table_sandik)
         return render(request, self.template_name, {'tables': tables,
                                                     'ds_form': '',"title_message":"Kullanıcı bilgileri tablosu"})
 
