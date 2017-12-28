@@ -7,11 +7,12 @@ from django.dispatch import receiver
 import datetime
 from django.utils import timezone
 
+DEFAULT_TC ="00000000000"
 class Profile(models.Model):
     class Meta:
         verbose_name = 'Uyeler'
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    tc = models.CharField(max_length=11,default="00000000000",db_index=True)
+    tc = models.CharField(max_length=11,default=DEFAULT_TC,db_index=True)
     sandik = models.IntegerField(default=0)  # sandik aidat
     dernek = models.IntegerField(default=0)  # dernek aidat
     address = models.CharField(max_length=200, default="")
@@ -94,4 +95,10 @@ class Outcome(models.Model):
     insert_date = models.DateTimeField()
 
 
-
+class Profit(models.Model):
+    class Meta:
+        verbose_name = 'Profit'
+    record_id = models.AutoField(primary_key=True)
+    tc = models.CharField(max_length=12, db_index=True)
+    odenen_aidat = models.IntegerField(default=0)
+    kar_payi =  models.IntegerField(default=0)

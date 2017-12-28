@@ -2,7 +2,7 @@
 from django.conf.urls import include, url
 from . import views
 from . import forms
-from .views import FilteredProfileListView ,FilteredSandikListView , MultipleTables ,NormalUserMultipleTables
+from .views import FilteredProfileListView ,FilteredSandikListView , MultipleTables ,NormalUserMultipleTables , FilteredProfitListView
 app_name = 'common'
 urlpatterns = [
     url(r'^$', views.home, name='home'),
@@ -15,5 +15,6 @@ urlpatterns = [
     url(r'^sandik_aidat/$', FilteredSandikListView.as_view(), name='bootstrap'),
     url(r'^tc_sorgu_view/$', MultipleTables.as_view(), name='tc_sorgu_view'),
     url(r'^normal_user_view/$', NormalUserMultipleTables.as_view(), name='normal_user_view'),
+    url(r'^profit_view/$', FilteredProfitListView.as_view(), name='profit_view'),
 
 ]

@@ -5,15 +5,17 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import render
 
 from .forms import UserForm, DuesForm ,TCrequestForm
-from .models import Profile, Dues_Sandik, Dues_Dernek, Credit, User ,Credit_Pays
+from .models import Profile, Dues_Sandik, Dues_Dernek, Credit, User ,Credit_Pays ,Profit ,DEFAULT_TC
 import traceback
 from django.contrib import messages
 
 from django_filters.views import FilterView
 from django_tables2 import MultiTableMixin, RequestConfig, SingleTableMixin, SingleTableView
-from .table_objects import ProfileFilter, ProfileTable, SandikFilter, SandikTable, NameTable
+from .table_objects import ProfileFilter, ProfileTable, SandikFilter, SandikTable, NameTable ,ProfitFilter , ProfitTable
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.base import TemplateView
+from django.db.models import Sum
+
 
 @login_required(login_url="/login/")
 def login(request):
@@ -230,7 +232,7 @@ def get_table_from_data(result,label):
 
 
 
-class NormalUserMultipleTables(MultiTableMixin, TemplateView):
+class NormalUserMultipleTables(LoginRequiredMixin,MultiTableMixin, TemplateView):
 
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
@@ -263,7 +265,7 @@ class NormalUserMultipleTables(MultiTableMixin, TemplateView):
             table_credit,
             table_credit_pays
         ]
-        RequestConfig(request).configure(table_sandik)
+
         return render(request, self.template_name, {'tables': tables,
                                                     'ds_form': '',"title_message":"Kullanıcı bilgileri tablosu"})
 
@@ -273,7 +275,7 @@ class NormalUserMultipleTables(MultiTableMixin, TemplateView):
 
 
 
-class MultipleTables(MultiTableMixin, TemplateView):
+class MultipleTables(LoginRequiredMixin,MultiTableMixin, TemplateView):
 
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
@@ -319,3 +321,75 @@ class MultipleTables(MultiTableMixin, TemplateView):
         return render(request, self.template_name, {'tables': tables,
                                                     'ds_form': form,"title_message":"TC SORGU EKRANI , tum liste icin 000 giriniz"})
 
+
+class FilteredProfitListView(LoginRequiredMixin, SingleTableMixin, FilterView):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
+
+
+    table_class = ProfitTable
+    model = Profit
+    template_name = 'bootstrap_template.html'
+    filterset_class = ProfitFilter
+
+    def get_context_data(self, **kwargs):
+        context = super(FilteredProfitListView, self).get_context_data(**kwargs)
+        filter = ProfitFilter(self.request.GET, queryset=self.get_queryset(**kwargs))
+        table = ProfitTable(filter.qs)
+        RequestConfig(self.request).configure(table)
+        context['filter'] = filter
+        context['table'] = table
+        return context
+
+    def get(self, request, *args, **kwargs):
+
+        all_members = Profile.objects.all()
+        kar_input = 1000
+        total_sandik = Dues_Sandik.objects.all().aggregate(Sum('value'))
+        total_dernek = Dues_Dernek.objects.all().aggregate(Sum('value'))
+        total_aidat = total_sandik.get('value__sum') if total_sandik.get('value__sum') else 0  + total_dernek.get('value__sum') if total_dernek.get('value__sum') else 0
+        data = []
+        total_value = 0
+        total_kar = 0
+        for member in all_members:
+                tc = member.tc
+                if tc != DEFAULT_TC:
+                    result_sandik = Dues_Sandik.objects.filter(tc=tc).aggregate(Sum('value'))
+                    result_dernek = Dues_Dernek.objects.filter(tc=tc).aggregate(Sum('value'))
+                    member_aidat = result_sandik.get('value__sum') if result_sandik.get('value__sum') else 0  + result_dernek.get('value__sum') if result_dernek.get('value__sum') else 0
+                    member_profit = (kar_input/total_aidat) * member_aidat
+                    total_value += member_aidat
+                    total_kar += member_profit
+                    data.append({"tc":tc,"odenen_aidat":member_aidat,"kar_payi": member_profit })
+
+        data.append({"tc": "TOTAL DAGITILAN KAR " , "odenen_aidat": total_value, "kar_payi": total_kar})
+        table = ProfitTable(data, order_by='-kar_payi')
+
+        RequestConfig(request).configure(table)
+        return render(request, self.template_name,{'table': table,'filter':self.filterset_class})
+
+    def post(self, request, *args, **kwargs):
+
+        all_members = Profile.objects.all()
+        kar_input = 1000
+        total_sandik = Dues_Sandik.objects.all().aggregate(Sum('value'))
+        total_dernek = Dues_Dernek.objects.all().aggregate(Sum('value'))
+        total_aidat = total_sandik.get('value__sum') if total_sandik.get('value__sum') else 0 + total_dernek.get('value__sum') if total_dernek.get('value__sum') else 0
+        data = []
+        total_value = 0
+        total_kar = 0
+        for member in all_members:
+            tc = member.tc
+            if tc != DEFAULT_TC:
+                result_sandik = Dues_Sandik.objects.filter(tc=tc).aggregate(Sum('value'))
+                result_dernek = Dues_Dernek.objects.filter(tc=tc).aggregate(Sum('value'))
+                member_aidat = result_sandik.get('value__sum') if result_sandik.get('value__sum') else 0 + result_dernek.get('value__sum') if result_dernek.get('value__sum') else 0
+                member_profit = (kar_input / total_aidat) * member_aidat
+                total_value += member_aidat
+                total_kar += member_profit
+                data.append({"tc": tc, "odenen_aidat": member_aidat, "kar_payi": member_profit})
+
+        data.append({"tc": "TOTAL DAGITILAN KAR ", "odenen_aidat": total_value, "kar_payi": total_kar})
+        table = ProfitTable(data, order_by='-kar_payi')
+        RequestConfig(request).configure(table)
+        return render(request, self.template_name, {'table': table, 'filter': self.filterset_class})
