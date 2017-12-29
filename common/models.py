@@ -13,6 +13,9 @@ class Profile(models.Model):
         verbose_name = 'Uyeler'
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     tc = models.CharField(max_length=11,default=DEFAULT_TC,db_index=True)
+    ad = models.CharField(max_length=50,default="")
+    soyad = models.CharField(max_length=50,default="")
+    email = models.CharField(max_length=50, default="")
     sandik = models.IntegerField(default=0)  # sandik aidat
     dernek = models.IntegerField(default=0)  # dernek aidat
     address = models.CharField(max_length=200, default="")

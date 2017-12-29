@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotFound
 from django.shortcuts import render
 
-from .forms import UserForm, DuesForm ,TCrequestForm
+from .forms import UserForm, DuesForm ,TCrequestForm ,karPayirequestForm
 from .models import Profile, Dues_Sandik, Dues_Dernek, Credit, User ,Credit_Pays ,Profit ,DEFAULT_TC
 import traceback
 from django.contrib import messages
@@ -37,6 +37,9 @@ def add_profile(request):
                                                     password=request.POST['username'])
                 profile = new_user.profile
                 profile.tc = request.POST['tc']
+                profile.ad = request.POST['first_name']
+                profile.soyad = request.POST['last_name']
+                profile.email = request.POST['email']
                 profile.sandik = request.POST['sandik']
                 profile.dernek = request.POST['dernek']
                 profile.address = request.POST['address']
@@ -56,6 +59,7 @@ def add_profile(request):
         else:
             return HttpResponseNotFound('<h1>No Page Here</h1>')
     except:
+        print(traceback.format_exc())
         messages.error(request, '%s tc li kullanici kayıt edilemedi.' % request.POST['username'])
         user_form = UserForm()
         return render(request, 'user_form.html', {
@@ -201,7 +205,7 @@ class FilteredProfileListView(LoginRequiredMixin, SingleTableMixin, FilterView):
 
     table_class = ProfileTable
     model = Profile
-    template_name = 'bootstrap_template.html'
+    template_name = 'user_template.html'
     filterset_class = ProfileFilter
 
 
@@ -331,50 +335,44 @@ class FilteredProfitListView(LoginRequiredMixin, SingleTableMixin, FilterView):
     model = Profit
     template_name = 'bootstrap_template.html'
     filterset_class = ProfitFilter
+    form_class = karPayirequestForm
 
-    def get_context_data(self, **kwargs):
-        context = super(FilteredProfitListView, self).get_context_data(**kwargs)
-        filter = ProfitFilter(self.request.GET, queryset=self.get_queryset(**kwargs))
-        table = ProfitTable(filter.qs)
-        RequestConfig(self.request).configure(table)
-        context['filter'] = filter
-        context['table'] = table
-        return context
+
 
     def get(self, request, *args, **kwargs):
-
-        all_members = Profile.objects.all()
-        kar_input = 1000
-        total_sandik = Dues_Sandik.objects.all().aggregate(Sum('value'))
-        total_dernek = Dues_Dernek.objects.all().aggregate(Sum('value'))
-        total_aidat = total_sandik.get('value__sum') if total_sandik.get('value__sum') else 0  + total_dernek.get('value__sum') if total_dernek.get('value__sum') else 0
-        data = []
-        total_value = 0
-        total_kar = 0
-        for member in all_members:
-                tc = member.tc
-                if tc != DEFAULT_TC:
-                    result_sandik = Dues_Sandik.objects.filter(tc=tc).aggregate(Sum('value'))
-                    result_dernek = Dues_Dernek.objects.filter(tc=tc).aggregate(Sum('value'))
-                    member_aidat = result_sandik.get('value__sum') if result_sandik.get('value__sum') else 0  + result_dernek.get('value__sum') if result_dernek.get('value__sum') else 0
-                    member_profit = (kar_input/total_aidat) * member_aidat
-                    total_value += member_aidat
-                    total_kar += member_profit
-                    data.append({"tc":tc,"odenen_aidat":member_aidat,"kar_payi": member_profit })
-
-        data.append({"tc": "TOTAL DAGITILAN KAR " , "odenen_aidat": total_value, "kar_payi": total_kar})
-        table = ProfitTable(data, order_by='-kar_payi')
-
-        RequestConfig(request).configure(table)
-        return render(request, self.template_name,{'table': table,'filter':self.filterset_class})
+        ds_form = karPayirequestForm()
+        my_filter = ProfitFilter(request.GET)
+        my_choice = my_filter.data.get('tc')
+        kar_payi = request.session.get('kar_payi', 0)
+        table = self.calculate_kar_payi(kar_payi, my_choice)
+        return render(request, self.template_name, {"table":table,
+                                                    'ds_form': ds_form,
+                                                    "title_message": "KAR payi miktari girip sorgulayiniz..., yeni hesaplama icin tekrar miktar giriniz",
+                                                    'filter': self.filterset_class})
 
     def post(self, request, *args, **kwargs):
+        my_filter = ProfitFilter(request.GET)
+        my_choice = my_filter.data.get('tc')
+        kar_input = int(request.POST["kar_payi"])
+        request.session['kar_payi'] = kar_input
 
+        table = self.calculate_kar_payi(kar_input, my_choice)
+
+        RequestConfig(request).configure(table)
+        ds_form = karPayirequestForm()
+        return render(request, self.template_name, {'table': table,
+                                                    'ds_form': ds_form,
+                                                    'filter': self.filterset_class})
+
+    def calculate_kar_payi(self, kar_input, my_choice):
         all_members = Profile.objects.all()
-        kar_input = 1000
         total_sandik = Dues_Sandik.objects.all().aggregate(Sum('value'))
         total_dernek = Dues_Dernek.objects.all().aggregate(Sum('value'))
-        total_aidat = total_sandik.get('value__sum') if total_sandik.get('value__sum') else 0 + total_dernek.get('value__sum') if total_dernek.get('value__sum') else 0
+        total_aidat = 0
+        if total_sandik.get('value__sum'):
+            total_aidat += total_sandik.get('value__sum')
+        if total_dernek.get('value__sum'):
+            total_aidat += total_dernek.get('value__sum')
         data = []
         total_value = 0
         total_kar = 0
@@ -383,13 +381,18 @@ class FilteredProfitListView(LoginRequiredMixin, SingleTableMixin, FilterView):
             if tc != DEFAULT_TC:
                 result_sandik = Dues_Sandik.objects.filter(tc=tc).aggregate(Sum('value'))
                 result_dernek = Dues_Dernek.objects.filter(tc=tc).aggregate(Sum('value'))
-                member_aidat = result_sandik.get('value__sum') if result_sandik.get('value__sum') else 0 + result_dernek.get('value__sum') if result_dernek.get('value__sum') else 0
+                member_aidat=0
+                if result_sandik.get('value__sum'):
+                    member_aidat += result_sandik.get('value__sum')
+                if result_dernek.get('value__sum'):
+                    member_aidat += result_dernek.get('value__sum')
+
                 member_profit = (kar_input / total_aidat) * member_aidat
                 total_value += member_aidat
                 total_kar += member_profit
                 data.append({"tc": tc, "odenen_aidat": member_aidat, "kar_payi": member_profit})
-
-        data.append({"tc": "TOTAL DAGITILAN KAR ", "odenen_aidat": total_value, "kar_payi": total_kar})
+        data.append({"tc": "TOTAL", "odenen_aidat": total_value, "kar_payi": total_kar})
+        if my_choice:
+            data = [x for x in data if x['tc'] == my_choice]
         table = ProfitTable(data, order_by='-kar_payi')
-        RequestConfig(request).configure(table)
-        return render(request, self.template_name, {'table': table, 'filter': self.filterset_class})
+        return table

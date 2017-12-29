@@ -19,6 +19,7 @@ class ProfileFilter(FilterSet):
 
 
 
+
 class SandikTable(tables.Table):
     class Meta:
         model = Dues_Sandik
@@ -51,6 +52,6 @@ class ProfitFilter(FilterSet):
     class Meta:
         model = Profit
         fields = {
-            'tc': ['exact', 'contains'],
-            # 'tz': ['exact'],
+            'tc': ['exact'],
+
         }
