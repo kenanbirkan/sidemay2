@@ -362,7 +362,8 @@ class FilteredProfitListView(LoginRequiredMixin, SingleTableMixin, FilterView):
         ds_form = karPayirequestForm()
         return render(request, self.template_name, {'table': table,
                                                     'ds_form': ds_form,
-                                                    'filter': self.filterset_class})
+                                                    'filter': self.filterset_class,
+                                                    "title_message": "KAR payi miktari girip sorgulayiniz..., yeni hesaplama icin tekrar miktar giriniz"})
 
     def calculate_kar_payi(self, kar_input, my_choice):
         all_members = Profile.objects.all()
