@@ -15,7 +15,11 @@ from .table_objects import ProfileFilter, ProfileTable, SandikFilter, SandikTabl
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.base import TemplateView
 from django.db.models import Sum
+import os
+import mimetypes
 
+from django.conf import settings
+from django.http import HttpResponse
 
 @login_required(login_url="/login/")
 def login(request):
@@ -199,6 +203,37 @@ def add_credit_pays(request):
         return HttpResponseNotFound('<h1>No Page Here</h1>')
 
 
+
+@login_required
+def download_sidemay_1(request):
+    try:
+        file_path = "doc/sidemay1.JPG"
+        content_type = mimetypes.guess_type(file_path)[0]
+        if os.path.exists(file_path):
+            with open(file_path, 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type=content_type)
+                response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+                return response
+
+        return HttpResponseNotFound('<h1>No Page Here</h1>')
+    except:
+        return HttpResponseNotFound('<h1>No Page Here</h1>')
+
+@login_required
+def download_sidemay_2(request):
+    try:
+        file_path = "doc/sidemay2.JPG"
+        content_type = mimetypes.guess_type(file_path)[0]
+        if os.path.exists(file_path):
+            with open(file_path, 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type=content_type)
+                response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+                return response
+
+        return HttpResponseNotFound('<h1>No Page Here</h1>')
+    except:
+        return HttpResponseNotFound('<h1>No Page Here</h1>')
+
 class FilteredProfileListView(LoginRequiredMixin, SingleTableMixin, FilterView):
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
@@ -368,12 +403,10 @@ class FilteredProfitListView(LoginRequiredMixin, SingleTableMixin, FilterView):
     def calculate_kar_payi(self, kar_input, my_choice):
         all_members = Profile.objects.all()
         total_sandik = Dues_Sandik.objects.all().aggregate(Sum('value'))
-        total_dernek = Dues_Dernek.objects.all().aggregate(Sum('value'))
         total_aidat = 0
         if total_sandik.get('value__sum'):
             total_aidat += total_sandik.get('value__sum')
-        if total_dernek.get('value__sum'):
-            total_aidat += total_dernek.get('value__sum')
+
         data = []
         total_value = 0
         total_kar = 0
@@ -381,12 +414,9 @@ class FilteredProfitListView(LoginRequiredMixin, SingleTableMixin, FilterView):
             tc = member.tc
             if tc != DEFAULT_TC:
                 result_sandik = Dues_Sandik.objects.filter(tc=tc).aggregate(Sum('value'))
-                result_dernek = Dues_Dernek.objects.filter(tc=tc).aggregate(Sum('value'))
                 member_aidat=0
                 if result_sandik.get('value__sum'):
                     member_aidat += result_sandik.get('value__sum')
-                if result_dernek.get('value__sum'):
-                    member_aidat += result_dernek.get('value__sum')
 
                 member_profit = (kar_input / total_aidat) * member_aidat
                 total_value += member_aidat

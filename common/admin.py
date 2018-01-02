@@ -27,7 +27,7 @@ class admin_Dues(admin.ModelAdmin):
 
 class admin_Profile(admin.ModelAdmin):
     search_fields =  ['tc']
-    list_display = ['tc','tel','start_date']
+    list_display = ['tc','ad','soyad','tel','start_date']
     actions = [delete_all_records]
 
 admin.site.register(Dues_Sandik,admin_Dues)
