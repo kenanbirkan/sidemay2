@@ -30,9 +30,8 @@ class admin_Profile(admin.ModelAdmin):
     list_display = ['tc','ad','soyad','tel','start_date']
     actions = [delete_all_records]
 
+admin.site.register(Profile,admin_Profile)
 admin.site.register(Dues_Sandik,admin_Dues)
 admin.site.register(Dues_Dernek,admin_Dues)
 admin.site.register(Credit,admin_Dues)
 admin.site.register(Credit_Pays,admin_Dues)
-admin.site.register(Outcome)
-admin.site.register(Profile,admin_Profile)

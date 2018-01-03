@@ -5,8 +5,119 @@
 <div class="row">
 
 <div class="jumbotron">
-  <h1>Hello</h1>
-  <p>You are on your Dashboard</p>
+
+  <p><span style="color:#000080"><span style="font-size:18px"><strong><font face="Arial, Helvetica, sans-serif">Sidemay &uuml;ye bilgi sistemine hosgeldiniz</font></strong></span></span></p>
+
+  <p><span style="font-size:12px"><strong><font face="Arial, Helvetica, sans-serif">Kullanım talimatları :&nbsp;</font></strong></span></p>
+
+  <p><span style="font-size:12px"><strong><font face="Arial, Helvetica, sans-serif">Sistemdeki tum ıslemler TC NO&nbsp;uzerinden yapılmaktadir, lutfen tum ıslemlerde TC NO yu hatasız girdiginizi kontrol ediniz</font></strong></span></p>
+
+  {% if user.is_superuser %}
+    <p><span style="font-size:12px"><strong><font face="Arial, Helvetica, sans-serif">Yeni uye ekle:</font></strong></span></p>
+
+    <ul>
+        <li><span style="font-size:12px">&nbsp;&#39;*&#39; olan tum alanların doldurulması zorunludur</span></li>
+        <li><span style="font-size:12px">&nbsp;email alanının formatı&nbsp; ;&nbsp;&quot;email@domain.com&quot; olmalıdır&nbsp; &nbsp; &nbsp; &nbsp;</span></li>
+        <li><span style="font-size:12px">&nbsp;tum alanlar eksiksiz olarak girildikten ve kaydet e basıldıktan sonra bilgi mesajı goruntulenecektir.</span></li>
+        <li><span style="font-size:12px">Kayıt islemi basarılı biterse yeni uye login sayfasından username=uye tc password=uye tc girerek kendi sayfasını gorebilir</span></li>
+    </ul>
+
+    <p><strong><span style="font-size:12px">Sandık aidat ekle</span></strong></p>
+
+    <ul>
+        <li>Sadece sistemdeki&nbsp;uyelere yeni veri girebilirsiniz</li>
+        <li>Kullanıcıya ait sandık aidat odemesini tc no miktar ve tarihe gore giriniz</li>
+        <li>* olan tum alanları doldurduktan ve&nbsp; kaydet e basıldıktan sonra&nbsp;<span style="font-size:12px">bilgi mesajı goruntulenecektir.</span></li>
+    </ul>
+
+    <p><strong><span style="font-size:12px">Dernek aidat ekle</span></strong></p>
+
+    <ul>
+        <li>Sadece sistemdeki&nbsp;uyelere yeni veri girebilirsiniz</li>
+        <li>Kullanıcıya ait dernek&nbsp;aidat odemesini tc no miktar ve tarihe gore giriniz</li>
+        <li>* olan tum alanları doldurduktan ve&nbsp; kaydet e basıldıktan sonra&nbsp;<span style="font-size:12px">bilgi mesajı goruntulenecektir.</span></li>
+    </ul>
+
+    <p><strong><span style="font-size:12px">Kredi verilen&nbsp;ekle</span></strong></p>
+
+    <ul>
+        <li>Sadece sistemdeki&nbsp;uyelere yeni veri girebilirsiniz.</li>
+        <li>Dernek tarfından uyeye verilen krediyi&nbsp;tc no miktar ve tarihe gore giriniz.</li>
+        <li>* olan tum alanları doldurduktan ve&nbsp; kaydet e basıldıktan sonra&nbsp;<span style="font-size:12px">bilgi mesajı goruntulenecektir.</span></li>
+    </ul>
+
+    <p><strong><span style="font-size:12px">Kredi odeme ekle</span></strong></p>
+
+    <ul>
+        <li>Sadece sistemdeki&nbsp;uyelere yeni veri girebilirsiniz.</li>
+        <li>Uye tarafından dernek hesabına odenen&nbsp;kredi borcunu&nbsp;tc no miktar ve tarihe gore giriniz.</li>
+        <li>* olan tum alanları doldurduktan ve&nbsp; kaydet e basıldıktan sonra&nbsp;<span style="font-size:12px">bilgi mesajı goruntulenecektir</span></li>
+    </ul>
+
+    <p><span style="font-size:12px"><strong>Tum Uye listesi</strong></span></p>
+
+    <ul>
+        <li>Sistemde olan tum kulllanıcı bilgilerini listeler , tc 00000000000 olan kullanıcılar admin kullanıcıdır.</li>
+    </ul>
+
+    <p><span style="font-size:12px"><strong>TC Sorgu ekranı</strong></span></p>
+
+    <ul>
+        <li>Sistemde olan kullanıcıların dernek,sandık,kredi borc,kredi odeme tablolarını listeler.</li>
+        <li>000 ile sorgu yapılırsa tum verileri listeler</li>
+    </ul>
+
+    <p><span style="font-size:12px"><strong>Kar payı&nbsp;ekranı</strong></span></p>
+
+    <ul>
+        <li>Toplam kar payini girip sorgula butonuna basıldıgında sistemdeki tum kullanıcıların kar payı miktarını odenen sandık aidata gore listeler.</li>
+        <li>Hesaplamada su formul kullanılmıstır toplam_kar * (uye_toplam_sandık_aidat / toplam_sandık_aidat)</li>
+        <li>Belirli bir kullanıcıya bakmak icin tc no girip filter tusuna basınız</li>
+        <li>Filter tusuna bos basıldıgında son girilen miktara gore tum uye kar bilgisini listeler</li>
+    </ul>
+
+    <p><span style="font-size:12px"><strong>Admin kayıt silme&nbsp;ekranı</strong></span></p>
+
+    <ul>
+        <li>Yanlıs bir kayıt girdiginiz dusunuyorsunuz bu ekran ile duzenleme ve silme ıslemi yapabilirsiniz</li>
+        <li>Yanlıs uye kaydı icin&nbsp;<a href="http://sidemay.pythonanywhere.com/admin/common/profile/">Uyelers</a>&nbsp;e tıklayınız</li>
+        <li>Search kısmına tc no yazarak aratınız&nbsp;</li>
+        <li><span style="font-size:14px"><span style="color:#800000">Uye silme islemi icin tc nin yanındaki kutuya tik atıldıktan sonra Action yazan kısımdan&nbsp; !!! UYE VE TUM KAYITLARI SIL !!! secenegini secerek Go ya tıklayınız l&uuml;tfen kayıt secerek gelen &quot;Delete&quot; butonunu kullanmayınız.</span></span></li>
+        <li>D&uuml;zenleme islemleri icin tc no uzerine tıklayarak d&uuml;zenlemerinizi yapınız ve Save e tıklayınız.</li>
+        <li>User yazan kısmı <strong><span style="color:#800000">degistirmeyiniz !!</span></strong></li>
+        <li>Dernek aidat islemleri icin&nbsp;<a href="http://sidemay.pythonanywhere.com/admin/common/dues_dernek/">Dernek aidats</a></li>
+        <li>Sandık aidat islemleri icin&nbsp;<a href="http://sidemay.pythonanywhere.com/admin/common/dues_sandik/">Sandik aidats</a></li>
+        <li>Dernek tarafından verilen krediler icin&nbsp;<a href="http://sidemay.pythonanywhere.com/admin/common/credit/">Kredi verilens</a></li>
+        <li>Dernege &ouml;denen kredi borcları icin&nbsp;<a href="http://sidemay.pythonanywhere.com/admin/common/credit_pays/">Kredi &ouml;denens</a></li>
+        <li>Search kısmına tc no ile kayıt bulunduktan sonra insert date yazan kısımdaki tarihi baz alarak islemlerinizi yapınız.</li>
+        <li>Tekrar siteye donus yapmak icin&nbsp;<a href="http://sidemay.pythonanywhere.com/">VIEW SITE</a>&nbsp;a tıklayınız</li>
+    </ul>
+  {% endif %}
+
+    <p><span style="font-size:12px"><strong>Uye listesini indir</strong></span></p>
+
+  <ul>
+      <li>TC, AD,SOYAD,TEL formatında dernege kayıtlı uyelerın listesini pdf olarak indirir</li>
+  </ul>
+
+  <p><span style="font-size:12px"><strong>Uye Bilgi ekranı&nbsp;</strong></span></p>
+
+  <ul>
+      <li>Sisteme login olmus uyeye ait&nbsp;dernek,sandık,kredi borc,kredi odeme tablolarını listeler.</li>
+  </ul>
+
+  <p><span style="font-size:12px"><strong>Kredi Talep formu indir</strong></p>
+
+  <ul>
+      <li>Dernek kredi talep formu g&ouml;r&uuml;nt&uuml;leme ekranıdır. Sag tıklayıp resmi farklı kaydet diyerek yazıcıdan cıktı alabilirsiniz.</li>
+  </ul>
+
+  <p><span style="font-size:12px"><strong>Dernek uye&nbsp;formu indir</strong></p>
+
+  <ul>
+      <li>Dernek uye onay&nbsp;formu g&ouml;r&uuml;nt&uuml;leme ekranıdır. Sag tıklayıp resmi farklı kaydet diyerek yazıcıdan cıktı alabilirsiniz.</li>
+  </ul>
+
 </div>
 </div>
 </div>

@@ -1,5 +1,4 @@
 from django.contrib.auth.decorators import login_required
-# from django.contrib.auth.models import User
 from django.http import HttpResponseNotFound
 from django.shortcuts import render
 
@@ -16,8 +15,6 @@ from django.views.generic.base import TemplateView
 from django.db.models import Sum
 import os
 import mimetypes
-from reportlab.platypus import SimpleDocTemplate
-from reportlab.platypus.tables import Table
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 
