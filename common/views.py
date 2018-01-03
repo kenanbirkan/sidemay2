@@ -384,7 +384,7 @@ class FilteredProfitListView(PermissionRequiredMixin, LoginRequiredMixin, Single
 @login_required
 def download_sidemay_1(request):
     try:
-        file_path = "doc/sidemay1.JPG"
+        file_path = "/home/sidemay/sidemay2/doc/sidemay1.JPG"
         content_type = mimetypes.guess_type(file_path)[0]
         if os.path.exists(file_path):
             with open(file_path, 'rb') as fh:
@@ -400,7 +400,7 @@ def download_sidemay_1(request):
 @login_required
 def download_sidemay_2(request):
     try:
-        file_path = "doc/sidemay2.JPG"
+        file_path = "/home/sidemay/sidemay2/doc/sidemay2.JPG"
         content_type = mimetypes.guess_type(file_path)[0]
         if os.path.exists(file_path):
             with open(file_path, 'rb') as fh:
