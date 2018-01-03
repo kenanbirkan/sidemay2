@@ -1,25 +1,28 @@
-from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 # from django.contrib.auth.models import User
 from django.http import HttpResponseNotFound
 from django.shortcuts import render
 
-from .forms import UserForm, DuesForm ,TCrequestForm ,karPayirequestForm
-from .models import Profile, Dues_Sandik, Dues_Dernek, Credit, User ,Credit_Pays ,Profit ,DEFAULT_TC
+from .forms import UserForm, DuesForm, TCrequestForm, karPayirequestForm
+from .models import Profile, Dues_Sandik, Dues_Dernek, Credit, User, Credit_Pays, Profit, DEFAULT_TC
 import traceback
 from django.contrib import messages
 
 from django_filters.views import FilterView
-from django_tables2 import MultiTableMixin, RequestConfig, SingleTableMixin, SingleTableView
-from .table_objects import ProfileFilter, ProfileTable, SandikFilter, SandikTable, NameTable ,ProfitFilter , ProfitTable
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django_tables2 import MultiTableMixin, RequestConfig, SingleTableMixin
+from .table_objects import ProfileFilter, ProfileTable, NameTable, ProfitFilter, ProfitTable
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic.base import TemplateView
 from django.db.models import Sum
 import os
 import mimetypes
+from reportlab.platypus import SimpleDocTemplate
+from reportlab.platypus.tables import Table
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 
-from django.conf import settings
 from django.http import HttpResponse
+
 
 @login_required(login_url="/login/")
 def login(request):
@@ -40,7 +43,8 @@ def add_profile(request):
                                                     email=request.POST['email'],
                                                     password=request.POST['username'])
                 profile = new_user.profile
-                profile.tc = request.POST['tc']
+                profile.tc = request.POST['username']
+                profile.iban = request.POST['iban']
                 profile.ad = request.POST['first_name']
                 profile.soyad = request.POST['last_name']
                 profile.email = request.POST['email']
@@ -198,43 +202,13 @@ def add_credit_pays(request):
 
         else:
             ds_form = DuesForm()
-            return render(request, 'dues_form.html', {'ds_form': ds_form,'title_message':"Kredi Odeme Ekranı"})
+            return render(request, 'dues_form.html', {'ds_form': ds_form, 'title_message': "Kredi Odeme Ekranı"})
     else:
         return HttpResponseNotFound('<h1>No Page Here</h1>')
 
 
-
-@login_required
-def download_sidemay_1(request):
-    try:
-        file_path = "doc/sidemay1.JPG"
-        content_type = mimetypes.guess_type(file_path)[0]
-        if os.path.exists(file_path):
-            with open(file_path, 'rb') as fh:
-                response = HttpResponse(fh.read(), content_type=content_type)
-                response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
-                return response
-
-        return HttpResponseNotFound('<h1>No Page Here</h1>')
-    except:
-        return HttpResponseNotFound('<h1>No Page Here</h1>')
-
-@login_required
-def download_sidemay_2(request):
-    try:
-        file_path = "doc/sidemay2.JPG"
-        content_type = mimetypes.guess_type(file_path)[0]
-        if os.path.exists(file_path):
-            with open(file_path, 'rb') as fh:
-                response = HttpResponse(fh.read(), content_type=content_type)
-                response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
-                return response
-
-        return HttpResponseNotFound('<h1>No Page Here</h1>')
-    except:
-        return HttpResponseNotFound('<h1>No Page Here</h1>')
-
-class FilteredProfileListView(LoginRequiredMixin, SingleTableMixin, FilterView):
+class FilteredProfileListView(PermissionRequiredMixin, LoginRequiredMixin, SingleTableMixin, FilterView):
+    permission_required = "auth.admin"
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
 
@@ -244,17 +218,7 @@ class FilteredProfileListView(LoginRequiredMixin, SingleTableMixin, FilterView):
     filterset_class = ProfileFilter
 
 
-class FilteredSandikListView(LoginRequiredMixin, SingleTableMixin, FilterView):
-    login_url = '/login/'
-    redirect_field_name = 'redirect_to'
-
-    table_class = SandikTable
-    model = Dues_Sandik
-    template_name = 'bootstrap_template.html'
-    filterset_class = SandikFilter
-
-
-def get_table_from_data(result,label):
+def get_table_from_data(result, label):
     data = []
     total_value = 0
     for item in result:
@@ -266,13 +230,11 @@ def get_table_from_data(result,label):
         total_value += item.value
         data.append(item_dict)
     data.append({"tc": "Total " + label, "value": total_value, "insert_date": ""})
-    table = NameTable(data,order_by='insert_date')
+    table = NameTable(data, order_by='insert_date')
     return table
 
 
-
-class NormalUserMultipleTables(LoginRequiredMixin,MultiTableMixin, TemplateView):
-
+class NormalUserMultipleTables(LoginRequiredMixin, MultiTableMixin, TemplateView):
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
     template_name = 'multiTable.html'
@@ -306,16 +268,11 @@ class NormalUserMultipleTables(LoginRequiredMixin,MultiTableMixin, TemplateView)
         ]
 
         return render(request, self.template_name, {'tables': tables,
-                                                    'ds_form': '',"title_message":"Kullanıcı bilgileri tablosu"})
+                                                    'ds_form': '', "title_message": "Kullanıcı bilgileri tablosu"})
 
 
-
-
-
-
-
-class MultipleTables(LoginRequiredMixin,MultiTableMixin, TemplateView):
-
+class MultipleTables(PermissionRequiredMixin, LoginRequiredMixin, MultiTableMixin, TemplateView):
+    permission_required = "auth.admin"
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
     template_name = 'multiTable.html'
@@ -330,25 +287,25 @@ class MultipleTables(LoginRequiredMixin,MultiTableMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         form = self.form_class(initial=self.initial)
-        return render(request, self.template_name, {'ds_form': form,"title_message":"TC SORGU EKRANI , tum liste icin 000 giriniz"})
+        return render(request, self.template_name, {'ds_form': form, "title_message": "TC SORGU EKRANI , tum liste icin 000 giriniz"})
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         tc = request.POST['tc']
         if tc == '000':
-             result_sandik = Dues_Sandik.objects.all()
-             result_dernek = Dues_Dernek.objects.all()
-             result_credit = Credit.objects.all()
-             result_credit_pays = Credit_Pays.objects.all()
+            result_sandik = Dues_Sandik.objects.all()
+            result_dernek = Dues_Dernek.objects.all()
+            result_credit = Credit.objects.all()
+            result_credit_pays = Credit_Pays.objects.all()
         else:
             result_sandik = Dues_Sandik.objects.filter(tc=tc)
             result_dernek = Dues_Dernek.objects.filter(tc=tc)
             result_credit = Credit.objects.filter(tc=tc)
             result_credit_pays = Credit_Pays.objects.filter(tc=tc)
 
-        table_sandik = get_table_from_data(result_sandik,"Sandik aidat")
-        table_dernek = get_table_from_data(result_dernek,"Dernek aidat")
-        table_credit = get_table_from_data(result_credit,"Kredi Verilen")
+        table_sandik = get_table_from_data(result_sandik, "Sandik aidat")
+        table_dernek = get_table_from_data(result_dernek, "Dernek aidat")
+        table_credit = get_table_from_data(result_credit, "Kredi Verilen")
         table_credit_pays = get_table_from_data(result_credit_pays, "Kredi Odenen")
 
         tables = [
@@ -358,13 +315,13 @@ class MultipleTables(LoginRequiredMixin,MultiTableMixin, TemplateView):
             table_credit_pays
         ]
         return render(request, self.template_name, {'tables': tables,
-                                                    'ds_form': form,"title_message":"TC SORGU EKRANI , tum liste icin 000 giriniz"})
+                                                    'ds_form': form, "title_message": "TC SORGU EKRANI , tum liste icin 000 giriniz"})
 
 
-class FilteredProfitListView(LoginRequiredMixin, SingleTableMixin, FilterView):
+class FilteredProfitListView(PermissionRequiredMixin, LoginRequiredMixin, SingleTableMixin, FilterView):
+    permission_required = "auth.admin"
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
-
 
     table_class = ProfitTable
     model = Profit
@@ -372,15 +329,13 @@ class FilteredProfitListView(LoginRequiredMixin, SingleTableMixin, FilterView):
     filterset_class = ProfitFilter
     form_class = karPayirequestForm
 
-
-
     def get(self, request, *args, **kwargs):
         ds_form = karPayirequestForm()
         my_filter = ProfitFilter(request.GET)
         my_choice = my_filter.data.get('tc')
         kar_payi = request.session.get('kar_payi', 0)
         table = self.calculate_kar_payi(kar_payi, my_choice)
-        return render(request, self.template_name, {"table":table,
+        return render(request, self.template_name, {"table": table,
                                                     'ds_form': ds_form,
                                                     "title_message": "KAR payi miktari girip sorgulayiniz..., yeni hesaplama icin tekrar miktar giriniz",
                                                     'filter': self.filterset_class})
@@ -414,7 +369,7 @@ class FilteredProfitListView(LoginRequiredMixin, SingleTableMixin, FilterView):
             tc = member.tc
             if tc != DEFAULT_TC:
                 result_sandik = Dues_Sandik.objects.filter(tc=tc).aggregate(Sum('value'))
-                member_aidat=0
+                member_aidat = 0
                 if result_sandik.get('value__sum'):
                     member_aidat += result_sandik.get('value__sum')
 
@@ -427,3 +382,60 @@ class FilteredProfitListView(LoginRequiredMixin, SingleTableMixin, FilterView):
             data = [x for x in data if x['tc'] == my_choice]
         table = ProfitTable(data, order_by='-kar_payi')
         return table
+
+
+@login_required
+def download_sidemay_1(request):
+    try:
+        file_path = "doc/sidemay1.JPG"
+        content_type = mimetypes.guess_type(file_path)[0]
+        if os.path.exists(file_path):
+            with open(file_path, 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type=content_type)
+                response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+                return response
+
+        return HttpResponseNotFound('<h1>No Page Here</h1>')
+    except:
+        return HttpResponseNotFound('<h1>No Page Here</h1>')
+
+
+@login_required
+def download_sidemay_2(request):
+    try:
+        file_path = "doc/sidemay2.JPG"
+        content_type = mimetypes.guess_type(file_path)[0]
+        if os.path.exists(file_path):
+            with open(file_path, 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type=content_type)
+                response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+                return response
+
+        return HttpResponseNotFound('<h1>No Page Here</h1>')
+    except:
+        return HttpResponseNotFound('<h1>No Page Here</h1>')
+
+
+@login_required
+def download_uye_list(request):
+    if request.user.is_superuser:
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename=sidemay_uye_liste.pdf'
+        elements = []
+        doc = SimpleDocTemplate(response)
+        data = [("TC", "AD", "SOYAD", "TEL")]
+        qs = Profile.objects.all()
+        for item in qs:
+            if item.tc != DEFAULT_TC:
+                data.append((item.tc, item.ad, item.soyad, item.tel))
+        t = Table(data)
+        t.setStyle(TableStyle([
+            ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+            ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+        ]))
+        elements.append(t)
+        doc.build(elements)
+        return response
+
+    else:
+        return HttpResponseNotFound('<h1>No Page Here</h1>')

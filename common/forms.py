@@ -10,9 +10,6 @@ class UserForm(forms.Form):
     username = forms.CharField(
         help_text="TC NO girilecek"
     )
-    tc = forms.CharField(
-        help_text="TC girilecek"
-    )
     first_name = forms.CharField(
         help_text="AD"
     )
@@ -21,6 +18,9 @@ class UserForm(forms.Form):
     )
     email = forms.EmailField(
         help_text="email adres"
+    )
+    iban = forms.CharField(
+        help_text="IBAN NO"
     )
     sandik = forms.IntegerField(
         help_text="Sandik aidat miktari"
@@ -42,11 +42,11 @@ class UserForm(forms.Form):
     helper = FormHelper()
     helper.form_class = 'form-horizontal'
     helper.layout = Layout(
-        Field('tc', css_class='input-xlarge'),
         Field('username', css_class='input-xlarge'),
         Field('first_name', css_class='input-xlarge'),
         Field('last_name', css_class='input-xlarge'),
         Field('email', css_class='input-xlarge'),
+        Field('iban', css_class='input-xlarge'),
         Field('sandik', css_class='input-xlarge'),
         Field('dernek', css_class='input-xlarge'),
         Field('address', css_class='input-xlarge'),

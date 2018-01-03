@@ -1,8 +1,7 @@
 
-from django.conf.urls import include, url
+from django.conf.urls import url
 from . import views
-from . import forms
-from .views import FilteredProfileListView ,FilteredSandikListView , MultipleTables ,NormalUserMultipleTables , FilteredProfitListView
+from .views import FilteredProfileListView , MultipleTables ,NormalUserMultipleTables , FilteredProfitListView
 app_name = 'common'
 urlpatterns = [
     url(r'^$', views.home, name='home'),
@@ -17,5 +16,6 @@ urlpatterns = [
     url(r'^profit_view/$', FilteredProfitListView.as_view(), name='profit_view'),
     url(r'^download_sidemay_1/', views.download_sidemay_1, name='download_sidemay_1'),
     url(r'^download_sidemay_2/', views.download_sidemay_2, name='download_sidemay_2'),
+    url(r'^download_uye_list/', views.download_uye_list, name='download_uye_list'),
 
 ]
