@@ -369,8 +369,10 @@ class FilteredProfitListView(PermissionRequiredMixin, LoginRequiredMixin, Single
                 member_aidat = 0
                 if result_sandik.get('value__sum'):
                     member_aidat += result_sandik.get('value__sum')
-
-                member_profit = (kar_input / total_aidat) * member_aidat
+                if total_aidat:
+                    member_profit = (kar_input / total_aidat) * member_aidat
+                else:
+                    member_profit = 0
                 total_value += member_aidat
                 total_kar += member_profit
                 data.append({"tc": tc, "odenen_aidat": member_aidat, "kar_payi": member_profit})
