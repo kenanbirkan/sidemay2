@@ -51,7 +51,15 @@ class Dues_Sandik(models.Model):
         return "tc: " + str(self.tc) + " miktar: " + str(self.value) + " tarih : " + str(self.insert_date)
 
 
+class Sorgu_model(models.Model):
+    class Meta:
+        verbose_name = 'Sandik aidat'
 
+    ad = models.CharField(max_length=50, default="")
+    soyad = models.CharField(max_length=50, default="")
+    tc = models.CharField(max_length=12,db_index=True)
+    value = models.IntegerField(default=0)  # sandik aidat
+    insert_date = models.DateTimeField()
 
 
 class Dues_Dernek(models.Model):

@@ -9,7 +9,7 @@ from django.contrib import messages
 
 from django_filters.views import FilterView
 from django_tables2 import MultiTableMixin, RequestConfig, SingleTableMixin
-from .table_objects import ProfileFilter, ProfileTable, NameTable, ProfitFilter, ProfitTable
+from .table_objects import ProfileFilter, ProfileTable, SorguTable, ProfitFilter, ProfitTable
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic.base import TemplateView
 from django.db.models import Sum
@@ -224,10 +224,15 @@ def get_table_from_data(result, label):
             "value": item.value,
             "insert_date": item.insert_date
         }
+        if item.tc != "000":
+            profile_obj = Profile.objects.get(tc=item.tc)
+            item_dict["ad"] =  profile_obj.ad
+            item_dict["soyad"] =profile_obj.soyad
+
         total_value += item.value
         data.append(item_dict)
     data.append({"tc": "Total " + label, "value": total_value, "insert_date": ""})
-    table = NameTable(data, order_by='insert_date')
+    table = SorguTable(data, order_by='insert_date')
     return table
 
 

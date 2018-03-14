@@ -1,6 +1,6 @@
 import  django_tables2 as tables
 from django_filters import FilterSet
-from .models import Profile, Dues_Sandik, Profit
+from .models import Profile, Sorgu_model, Profit
 
 
 class ProfileTable(tables.Table):
@@ -20,11 +20,11 @@ class ProfileFilter(FilterSet):
         }
 
 
-class NameTable(tables.Table):
+class SorguTable(tables.Table):
     class Meta:
-        model = Dues_Sandik
+        model = Sorgu_model
         attrs = {'class': 'table table-bordered table-striped table-hover'}
-        exclude = ('record_id',)
+        exclude = ('record_id',"id",)
         per_page = 30
 
 
