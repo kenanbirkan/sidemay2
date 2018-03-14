@@ -316,7 +316,7 @@ class MultipleTables(PermissionRequiredMixin, LoginRequiredMixin, MultiTableMixi
         table_dernek = get_table_from_data(result_dernek, "Dernek aidat")
         table_credit = get_table_from_data(result_credit, "Kredi Verilen")
         table_credit_pays = get_table_from_data(result_credit_pays, "Kredi Odenen")
-        table_sandik.paginate(page=request.GET.get('page', 1), per_page=50)
+        table_sandik.paginate(page=request.GET.get('page', 1), per_page=10)
         tables = [
             table_sandik,
             table_dernek,
