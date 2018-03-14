@@ -289,11 +289,19 @@ class MultipleTables(PermissionRequiredMixin, LoginRequiredMixin, MultiTableMixi
 
     def get(self, request, *args, **kwargs):
         form = self.form_class(initial=self.initial)
-        return render(request, self.template_name, {'ds_form': form, "title_message": "TC SORGU EKRANI , tum liste icin 000 giriniz"})
+        tc = request.session.get('tc', 000)
+        tables = self.create_tables_for_tc(request, tc)
+        return render(request, self.template_name, {'tables': tables,'ds_form': form, "title_message": "TC SORGU EKRANI , tum liste icin 000 giriniz"})
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         tc = request.POST['tc']
+        request.session['tc'] = tc
+        tables = self.create_tables_for_tc(request, tc)
+        return render(request, self.template_name, {'tables': tables,
+                                                    'ds_form': form, "title_message": "TC SORGU EKRANI , tum liste icin 000 giriniz"})
+
+    def create_tables_for_tc(self, request, tc):
         if tc == '000':
             result_sandik = Dues_Sandik.objects.all()
             result_dernek = Dues_Dernek.objects.all()
@@ -304,20 +312,18 @@ class MultipleTables(PermissionRequiredMixin, LoginRequiredMixin, MultiTableMixi
             result_dernek = Dues_Dernek.objects.filter(tc=tc)
             result_credit = Credit.objects.filter(tc=tc)
             result_credit_pays = Credit_Pays.objects.filter(tc=tc)
-
         table_sandik = get_table_from_data(result_sandik, "Sandik aidat")
         table_dernek = get_table_from_data(result_dernek, "Dernek aidat")
         table_credit = get_table_from_data(result_credit, "Kredi Verilen")
         table_credit_pays = get_table_from_data(result_credit_pays, "Kredi Odenen")
-
+        table_sandik.paginate(page=request.GET.get('page', 1), per_page=50)
         tables = [
             table_sandik,
             table_dernek,
             table_credit,
             table_credit_pays
         ]
-        return render(request, self.template_name, {'tables': tables,
-                                                    'ds_form': form, "title_message": "TC SORGU EKRANI , tum liste icin 000 giriniz"})
+        return tables
 
 
 class FilteredProfitListView(PermissionRequiredMixin, LoginRequiredMixin, SingleTableMixin, FilterView):
