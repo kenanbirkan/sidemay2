@@ -336,6 +336,7 @@ class FilteredProfitListView(PermissionRequiredMixin, LoginRequiredMixin, Single
     template_name = 'bootstrap_template.html'
     filterset_class = ProfitFilter
     form_class = karPayirequestForm
+    per_page = 20
 
     def get(self, request, *args, **kwargs):
         ds_form = karPayirequestForm()
@@ -343,6 +344,7 @@ class FilteredProfitListView(PermissionRequiredMixin, LoginRequiredMixin, Single
         my_choice = my_filter.data.get('tc')
         kar_payi = request.session.get('kar_payi', 0)
         table = self.calculate_kar_payi(kar_payi, my_choice)
+        table.paginate(page=request.GET.get('page', 1), per_page=self.per_page)
         return render(request, self.template_name, {"table": table,
                                                     'ds_form': ds_form,
                                                     "title_message": "KAR payi miktari girip sorgulayiniz..., yeni hesaplama icin tekrar miktar giriniz",
@@ -356,7 +358,8 @@ class FilteredProfitListView(PermissionRequiredMixin, LoginRequiredMixin, Single
 
         table = self.calculate_kar_payi(kar_input, my_choice)
 
-        RequestConfig(request).configure(table)
+        # RequestConfig(request).configure(table)
+        table.paginate(page=request.GET.get('page', 1), per_page=self.per_page)
         ds_form = karPayirequestForm()
         return render(request, self.template_name, {'table': table,
                                                     'ds_form': ds_form,
