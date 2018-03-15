@@ -112,6 +112,8 @@ class Profit(models.Model):
     class Meta:
         verbose_name = 'Profit'
     record_id = models.AutoField(primary_key=True)
+    ad = models.CharField(max_length=50, default="")
+    soyad = models.CharField(max_length=50, default="")
     tc = models.CharField(max_length=12, db_index=True)
     odenen_aidat = models.IntegerField(default=0)
     kar_payi =  models.IntegerField(default=0)

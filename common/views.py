@@ -226,8 +226,8 @@ def get_table_from_data(result, label):
         }
         if item.tc != "000":
             profile_obj = Profile.objects.get(tc=item.tc)
-            item_dict["ad"] =  profile_obj.ad
-            item_dict["soyad"] =profile_obj.soyad
+            item_dict["ad"] = profile_obj.ad
+            item_dict["soyad"] = profile_obj.soyad
 
         total_value += item.value
         data.append(item_dict)
@@ -291,7 +291,7 @@ class MultipleTables(PermissionRequiredMixin, LoginRequiredMixin, MultiTableMixi
         form = self.form_class(initial=self.initial)
         tc = request.session.get('tc', 000)
         tables = self.create_tables_for_tc(request, tc)
-        return render(request, self.template_name, {'tables': tables,'ds_form': form, "title_message": "TC SORGU EKRANI , tum liste icin 000 giriniz"})
+        return render(request, self.template_name, {'tables': tables, 'ds_form': form, "title_message": "TC SORGU EKRANI , tum liste icin 000 giriniz"})
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
@@ -386,7 +386,11 @@ class FilteredProfitListView(PermissionRequiredMixin, LoginRequiredMixin, Single
                     member_profit = 0
                 total_value += member_aidat
                 total_kar += member_profit
-                data.append({"tc": tc, "odenen_aidat": member_aidat, "kar_payi": member_profit})
+                data.append({"tc": tc,
+                             "odenen_aidat": member_aidat,
+                             "kar_payi": member_profit,
+                             "ad": member.ad,
+                             "soyad": member.soyad})
         data.append({"tc": "TOTAL", "odenen_aidat": total_value, "kar_payi": total_kar})
         if my_choice:
             data = [x for x in data if x['tc'] == my_choice]
